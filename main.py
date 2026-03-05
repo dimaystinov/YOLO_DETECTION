@@ -2,11 +2,21 @@
 Пример детекции YOLO с визуализацией через OpenCV.
 Рисует боксы, подписи классов и уверенность на изображении.
 """
+import os
+import sys
+import json
 import cv2
 from ultralytics import YOLO
 
 # Ширина по которой ресайзим с сохранением пропорций
 TARGET_WIDTH = 640
+
+
+def get_base_dir():
+    """Папка с exe при сборке PyInstaller, иначе — папка скрипта."""
+    if getattr(sys, "frozen", False):
+        return os.path.dirname(sys.executable)
+    return os.path.dirname(os.path.abspath(__file__))
 
 
 def resize_keep_aspect(frame, width=TARGET_WIDTH):
@@ -49,13 +59,14 @@ def draw_detections(frame, results, model, conf_threshold=0.25):
     return frame
 
 
-def main():
-    model = YOLO("yolo26n.pt")
+def image_detection(image_path):
+    base = get_base_dir()
+    model = YOLO(os.path.join(base, "yolo26n.pt"))
     print(model.names)  # Словарь с классами (id: название)
     for _name in (list(model.names.values())):  # Список названий
         print(_name)
     # Вариант 1: одна картинка
-    image_path = r"src\minion.jpg"
+    # image_path = r"src\minion.jpg"
     frame = cv2.imread(image_path)
     if frame is None:
         print(f"Не удалось загрузить: {image_path}")
@@ -67,13 +78,13 @@ def main():
 
     cv2.imshow("YOLO + OpenCV", frame)
     print("Нажмите любую клавишу для выхода.")
-    cv2.waitKey(1)
+    cv2.waitKey(100000)
     cv2.destroyAllWindows()
 
-def main_video():
-    # Вариант 2: видео (раскомментируйте для проверки на видео)
-    model = YOLO("yolo26n.pt")
-    cap = cv2.VideoCapture(r"src\apples.mp4")
+def video_detection(image_path):
+    base = get_base_dir()
+    model = YOLO(os.path.join(base, "yolo26n.pt"))
+    cap = cv2.VideoCapture(image_path)
     while cap.isOpened():
         ret, frame = cap.read()
         if not ret:
@@ -82,11 +93,35 @@ def main_video():
         results = model(frame, verbose=False)
         frame = draw_detections(frame, results, model)
         cv2.imshow("YOLO + OpenCV", frame)
-        if cv2.waitKey(10) & 0xFF == ord("q"):
+        key = cv2.waitKey(10)
+        if key == ord("q") or key == 27:
             break
     cap.release()
     cv2.destroyAllWindows()
 
+def main():
+    base = get_base_dir()
+    image_path = os.path.join(base, "src", "apples.mp4")
+    conf_path = os.path.join(base, "conf.json")
+    with open(conf_path, "r", encoding="utf-8") as f:
+        name_str = f.read()
+        name_dict = json.loads(name_str)
+        image_path = name_dict["name"]
+    
+    for ext in {'.jpg', '.jpeg', '.png', '.gif', '.bmp'}:
+        if image_path.find(ext) > 0:
+            print("image", ext)
+            image_detection(image_path)
+    
+    for ext in {'.mp4', '.avi', '.mov', '.mkv'}:
+        if image_path.find(ext) > 0:
+            print("video", ext)
+            video_detection(image_path)
+
 
 if __name__ == "__main__":
-    main_video()
+    import multiprocessing
+    multiprocessing.freeze_support()
+    main()
+    
+    

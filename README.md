@@ -46,7 +46,28 @@
 python main.py
 ```
 
-Скрипт загружает изображение `src/img.jpg`, запускает детекцию и показывает результат в окне. Выход — любая клавиша. Для работы с видео раскомментируй блок «Вариант 2» в `main.py`.
+Скрипт читает путь к файлу из `conf.json`, запускает детекцию по изображению или видео и показывает результат в окне. Рядом с программой должны лежать `yolo26n.pt` и `conf.json`.
+
+---
+
+## Сборка exe (PyInstaller)
+
+1. Установи зависимости проекта и PyInstaller:
+   ```bash
+   pip install -r requirements.txt
+   pip install pyinstaller
+   ```
+
+2. Собери один файл exe:
+   ```bash
+   pyinstaller --clean YOLO_Detection.spec
+   ```
+   Или запусти скрипт:
+   ```bash
+   build.bat
+   ```
+
+3. Готовый `YOLO_Detection.exe` будет в папке `dist\`. Рядом с exe положи `yolo26n.pt` и `conf.json` (путь в конфиге — к картинке или видео).
 
 ---
 
