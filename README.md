@@ -2,6 +2,7 @@
 
 Детекция объектов на изображениях и видео с помощью YOLO, визуализация через OpenCV. Кадры приводятся к ширине 640 с сохранением пропорций.
 
+Готовый проект с exe https://github.com/dimaystinov/YOLO_DETECTION/releases/download/yolo/YOLO_Detection.zip 
 ---
 
 ## Что используется в проекте
