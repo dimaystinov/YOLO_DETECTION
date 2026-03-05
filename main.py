@@ -40,10 +40,10 @@ def draw_detections(frame, results, model, conf_threshold=0.25):
         cv2.rectangle(frame, (x1, y1), (x2, y2), color, thickness)
 
         (tw, th), _ = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.6, 1)
-        cv2.rectangle(frame, (x1, y1 - th - 10), (x1 + tw, y1), color, -1)
+        cv2.rectangle(frame, (x1, y2 - th - 10), (x1 + tw, y2), color, -1)
         cv2.putText(
-            frame, label, (x1, y1 - 5),
-            cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 0), 1, cv2.LINE_AA
+            frame, label, (x1, y2 - 5),
+            cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 0), 2, cv2.LINE_AA
         )
 
     return frame
@@ -51,9 +51,11 @@ def draw_detections(frame, results, model, conf_threshold=0.25):
 
 def main():
     model = YOLO("yolo26n.pt")
-
+    print(model.names)  # Словарь с классами (id: название)
+    for _name in (list(model.names.values())):  # Список названий
+        print(_name)
     # Вариант 1: одна картинка
-    image_path = r"src\img.jpg"
+    image_path = r"src\minion.jpg"
     frame = cv2.imread(image_path)
     if frame is None:
         print(f"Не удалось загрузить: {image_path}")
@@ -65,24 +67,26 @@ def main():
 
     cv2.imshow("YOLO + OpenCV", frame)
     print("Нажмите любую клавишу для выхода.")
-    cv2.waitKey(0)
+    cv2.waitKey(1)
     cv2.destroyAllWindows()
 
+def main_video():
     # Вариант 2: видео (раскомментируйте для проверки на видео)
-    # cap = cv2.VideoCapture(r"src\apples.mp4")
-    # while cap.isOpened():
-    #     ret, frame = cap.read()
-    #     if not ret:
-    #         break
-    #     frame = resize_keep_aspect(frame)
-    #     results = model(frame, verbose=False)
-    #     frame = draw_detections(frame, results, model)
-    #     cv2.imshow("YOLO + OpenCV", frame)
-    #     if cv2.waitKey(1) & 0xFF == ord("q"):
-    #         break
-    # cap.release()
-    # cv2.destroyAllWindows()
+    model = YOLO("yolo26n.pt")
+    cap = cv2.VideoCapture(r"src\apples.mp4")
+    while cap.isOpened():
+        ret, frame = cap.read()
+        if not ret:
+            break
+        frame = resize_keep_aspect(frame)
+        results = model(frame, verbose=False)
+        frame = draw_detections(frame, results, model)
+        cv2.imshow("YOLO + OpenCV", frame)
+        if cv2.waitKey(10) & 0xFF == ord("q"):
+            break
+    cap.release()
+    cv2.destroyAllWindows()
 
 
 if __name__ == "__main__":
-    main()
+    main_video()
