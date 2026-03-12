@@ -49,11 +49,11 @@ def draw_detections(frame, results, model, conf_threshold=0.25):
 
         cv2.rectangle(frame, (x1, y1), (x2, y2), color, thickness)
 
-        (tw, th), _ = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.6, 1)
-        cv2.rectangle(frame, (x1, y2 - th - 10), (x1 + tw, y2), color, -1)
+        (tw, th), _ = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.5, 1)
+        #cv2.rectangle(frame, (x1, y2 - th - 10), (x1 + tw, y2), color, -1)
         cv2.putText(
             frame, label, (x1, y2 - 5),
-            cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 0), 2, cv2.LINE_AA
+            cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv2.LINE_AA
         )
 
     return frame
@@ -107,16 +107,24 @@ def main():
         name_str = f.read()
         name_dict = json.loads(name_str)
         image_path = name_dict["name"]
+
+
+    if (type(image_path) is int):
+        print("camera", image_path)
+        video_detection(image_path)
+        return  
+
+    for ext in {'.mp4', '.avi', '.mov', '.mkv'}:
+        if image_path.find(ext) > 0:
+            print("video", ext)
+            video_detection(image_path)
     
     for ext in {'.jpg', '.jpeg', '.png', '.gif', '.bmp'}:
         if image_path.find(ext) > 0:
             print("image", ext)
             image_detection(image_path)
     
-    for ext in {'.mp4', '.avi', '.mov', '.mkv'}:
-        if image_path.find(ext) > 0:
-            print("video", ext)
-            video_detection(image_path)
+    
 
 
 if __name__ == "__main__":
