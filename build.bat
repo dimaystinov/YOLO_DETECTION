@@ -17,20 +17,21 @@ if not exist "YOLO_Detection.spec" (
     exit /b 1
 )
 
-REM Python проекта: .venv или venv, иначе системный
+REM Python проекта: системный питон
 set "PY=python"
-if exist ".venv\Scripts\python.exe" (
-    set "PY=.venv\Scripts\python.exe"
-    echo Используется: .venv\Scripts\python.exe
-) else if exist "venv\Scripts\python.exe" (
-    set "PY=venv\Scripts\python.exe"
-    echo Используется: venv\Scripts\python.exe
-) else (
-    echo Используется системный: python
-)
-echo.
+echo Используется системный python
 
-echo [1/2] Установка PyInstaller...
+echo.
+echo [1/3] Установка зависимостей...
+"%PY%" -m pip install -r requirements.txt
+if errorlevel 1 (
+    echo Ошибка установки зависимостей.
+    pause
+    exit /b 1
+)
+
+echo.
+echo [2/3] Установка PyInstaller...
 "%PY%" -m pip install pyinstaller
 if errorlevel 1 (
     echo Ошибка установки PyInstaller.
@@ -39,7 +40,7 @@ if errorlevel 1 (
 )
 
 echo.
-echo [2/2] Сборка exe...
+echo [3/3] Сборка exe...
 "%PY%" -m PyInstaller --noconfirm --clean YOLO_Detection.spec
 if errorlevel 1 (
     echo Ошибка сборки.
